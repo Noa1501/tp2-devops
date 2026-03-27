@@ -3,7 +3,7 @@ export function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
   
-  export function calculateAverage(numbers: number[]): number {
+  export function calculateAverage(numbers: number[] | null): number {
 	if (!numbers || numbers.length === 0) return 0;
 	const sum = numbers.reduce((acc, n) => acc + n, 0);
 	return Math.round((sum / numbers.length) * 100) / 100;
@@ -15,7 +15,8 @@ export function capitalize(str: string): string {
 	  .trim()
 	  .toLowerCase()
 	  .replace(/[^a-z0-9\s-]/g, '')
-	  .replace(/\s+/g, '-');
+	  .replace(/\s+/g, '-')
+	  .replace(/^-+|-+$/g, ''); 
   }
   
   export function clamp(value: number, min: number, max: number): number {
