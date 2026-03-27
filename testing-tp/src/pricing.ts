@@ -17,4 +17,52 @@ export function calculateDeliveryFee(
 	}
   
 	return Math.round(fee * 100) / 100;
+}
+  export interface PromoCode {
+	code: string;
+	type: 'percentage' | 'fixed';
+	value: number;
+	minOrder: number;
+	expiresAt: string;
   }
+  
+  export interface PromoResult {
+	total: number;
+	discount: number;
+  }
+  
+export function applyPromoCode(
+	subtotal: number,
+	promoCode: string | null,
+	promoCodes: PromoCode[],
+  ): PromoResult {
+	// Sous-total invalide
+	if (subtotal < 0) throw new Error('Sous-total invalide');
+  
+	// Pas de code promo → pas de réduction
+	if (!promoCode) return { total: subtotal, discount: 0 };
+  
+	// Cherche le code dans la liste
+	const promo = promoCodes.find((p) => p.code === promoCode);
+	if (!promo) throw new Error('Code promo inconnu');
+  
+	// Vérifie l'expiration
+	const today = new Date().toISOString().split('T')[0];
+	if (promo.expiresAt < today) throw new Error('Code promo expiré');
+  
+	// Vérifie le montant minimum
+	if (subtotal < promo.minOrder) throw new Error('Commande minimum non atteinte');
+  
+	// Calcule la réduction
+	let discount = 0;
+	if (promo.type === 'percentage') {
+	  discount = Math.round((subtotal * promo.value) / 100 * 100) / 100;
+	} else if (promo.type === 'fixed') {
+	  discount = promo.value;
+	}
+  
+	// Le total ne peut pas être négatif
+	const total = Math.max(0, Math.round((subtotal - discount) * 100) / 100);
+  
+	return { total, discount };
+}
