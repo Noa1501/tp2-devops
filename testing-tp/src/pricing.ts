@@ -102,3 +102,68 @@ export function calculateSurge(hour: number, dayOfWeek: DayOfWeek): number {
   // Toutes les autres heures ouvertes → normal
   return 1.0;
 }
+export interface OrderItem {
+	name: string;
+	price: number;
+	quantity: number;
+  }
+  
+  export interface OrderTotal {
+	subtotal: number;
+	discount: number;
+	deliveryFee: number;
+	surge: number;
+	total: number;
+  }
+  
+  export function calculateOrderTotal(
+	items: OrderItem[],
+	distance: number,
+	weight: number,
+	promoCode: string | null,
+	hour: number,
+	dayOfWeek: DayOfWeek,
+	promoCodes: PromoCode[],
+  ): OrderTotal {
+	// Panier vide
+	if (!items || items.length === 0) throw new Error('Panier vide');
+  
+	// Prix invalides
+	items.forEach((item) => {
+	  if (item.price < 0) throw new Error('Prix invalide');
+	});
+  
+	// Restaurant fermé
+	const surge = calculateSurge(hour, dayOfWeek);
+	if (surge === 0) throw new Error('Restaurant fermé');
+  
+	// Frais de livraison — hors zone
+	const rawDeliveryFee = calculateDeliveryFee(distance, weight);
+	if (rawDeliveryFee === null) throw new Error('Hors zone de livraison');
+  
+	// Calcul du sous-total — ignore les quantités à 0
+	const subtotal = Math.round(
+	  items
+		.filter((item) => item.quantity > 0)
+		.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100,
+	) / 100;
+  
+	// Application du code promo
+	const promoResult = applyPromoCode(subtotal, promoCode, promoCodes);
+	const discount = promoResult.discount;
+	const subtotalAfterPromo = promoResult.total;
+  
+	// Application du surge sur les frais de livraison
+	const deliveryFee = Math.round(rawDeliveryFee * surge * 100) / 100;
+  
+	// Total final
+	const total = Math.round((subtotalAfterPromo + deliveryFee) * 100) / 100;
+  
+	return {
+	  subtotal,
+	  discount,
+	  deliveryFee,
+	  surge,
+	  total,
+	};
+  }
