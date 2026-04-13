@@ -5,6 +5,7 @@ import {
 	Body,
 	Param,
 	BadRequestException,
+	HttpCode,
   } from '@nestjs/common';
   import { OrdersService } from './orders.service';
   
@@ -13,6 +14,7 @@ import {
 	constructor(private readonly ordersService: OrdersService) {}
   
 	@Post('orders/simulate')
+	@HttpCode(200)
 	simulate(@Body() body: any) {
 	  const { items, distance, weight, promoCode, hour, dayOfWeek } = body;
 	  if (!items || !distance || !hour || !dayOfWeek) {
@@ -52,6 +54,7 @@ import {
 	}
   
 	@Post('promo/validate')
+	@HttpCode(200)
 	validatePromo(@Body() body: any) {
 	  const { code, subtotal } = body;
 	  if (!code) throw new BadRequestException('Code promo manquant');
