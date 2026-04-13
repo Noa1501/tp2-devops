@@ -3,7 +3,6 @@ import {
   calculateOrderTotal,
   OrderItem,
   OrderTotal,
-  PromoCode,
   applyPromoCode,
 } from '../pricing';
 import { PROMO_CODES } from './promo-codes.data';
