@@ -1,4 +1,4 @@
-import { calculateDeliveryFee,applyPromoCode } from './pricing';
+import { calculateDeliveryFee,applyPromoCode,calculateSurge } from './pricing';
 
 describe('calculateDeliveryFee', () => {
   // ── Cas normaux ────────────────────────────────────────────
@@ -150,5 +150,61 @@ const promoCodes = [
 	  expect(() => applyPromoCode(-10, 'BIENVENUE20', promoCodes)).toThrow(
 		'Sous-total invalide',
 	  );
+	});
+  });
+  describe('calculateSurge', () => {
+	// ── Chaque multiplicateur ──────────────────────────────────
+	it('should return 1.0 for tuesday at 15h (normal)', () => {
+	  expect(calculateSurge(15, 'tuesday')).toBe(1.0);
+	});
+  
+	it('should return 1.3 for wednesday at 12h30 (lunch)', () => {
+	  expect(calculateSurge(12.5, 'wednesday')).toBe(1.3);
+	});
+  
+	it('should return 1.5 for thursday at 20h (dinner)', () => {
+	  expect(calculateSurge(20, 'thursday')).toBe(1.5);
+	});
+  
+	it('should return 1.8 for friday at 21h (weekend evening)', () => {
+	  expect(calculateSurge(21, 'friday')).toBe(1.8);
+	});
+  
+	it('should return 1.8 for saturday at 20h (weekend evening)', () => {
+	  expect(calculateSurge(20, 'saturday')).toBe(1.8);
+	});
+  
+	it('should return 1.2 for sunday at 14h', () => {
+	  expect(calculateSurge(14, 'sunday')).toBe(1.2);
+	});
+  
+	// ── Fermé ─────────────────────────────────────────────────
+	it('should return 0 before opening at 9h59', () => {
+	  expect(calculateSurge(9.59, 'monday')).toBe(0);
+	});
+  
+	it('should return 0 after closing at 22h01', () => {
+	  expect(calculateSurge(22.01, 'monday')).toBe(0);
+	});
+  
+	// ── Transitions et limites ─────────────────────────────────
+	it('should return 1.0 at exactly 10h (opening)', () => {
+	  expect(calculateSurge(10, 'monday')).toBe(1.0);
+	});
+  
+	it('should return 1.3 at exactly 12h (lunch starts)', () => {
+	  expect(calculateSurge(12, 'monday')).toBe(1.3);
+	});
+  
+	it('should return 1.0 at exactly 11h30 (still normal)', () => {
+	  expect(calculateSurge(11.5, 'monday')).toBe(1.0);
+	});
+  
+	it('should return 1.5 at exactly 19h (dinner starts)', () => {
+	  expect(calculateSurge(19, 'monday')).toBe(1.5);
+	});
+  
+	it('should return 0 at exactly 22h (closed)', () => {
+	  expect(calculateSurge(22, 'monday')).toBe(0);
 	});
   });

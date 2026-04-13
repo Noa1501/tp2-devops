@@ -66,3 +66,39 @@ export function applyPromoCode(
   
 	return { total, discount };
 }
+type DayOfWeek =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
+export function calculateSurge(hour: number, dayOfWeek: DayOfWeek): number {
+  // Fermé avant 10h et à partir de 22h
+  if (hour < 10 || hour >= 22) return 0;
+
+  // Dimanche → multiplicateur fixe toute la journée
+  if (dayOfWeek === 'sunday') return 1.2;
+
+  // Vendredi et samedi soir 19h-22h
+  if (
+    (dayOfWeek === 'friday' || dayOfWeek === 'saturday') &&
+    hour >= 19
+  ) {
+    return 1.8;
+  }
+
+  // Lundi-Jeudi
+  if (['monday', 'tuesday', 'wednesday', 'thursday'].includes(dayOfWeek)) {
+    // Déjeuner 12h-13h30
+    if (hour >= 12 && hour < 13.5) return 1.3;
+
+    // Dîner 19h-21h
+    if (hour >= 19 && hour < 21) return 1.5;
+  }
+
+  // Toutes les autres heures ouvertes → normal
+  return 1.0;
+}
