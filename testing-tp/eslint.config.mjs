@@ -17,13 +17,9 @@ export default [
       '@typescript-eslint': eslintPluginTs,
     },
     rules: {
-      // Variables déclarées mais jamais utilisées
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      // Pas de console.log oubliés
       'no-console': 'error',
-      // Pas de var
       'no-var': 'error',
-      // Toujours const si possible
       'prefer-const': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',

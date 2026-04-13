@@ -1,7 +1,6 @@
 import { calculateDeliveryFee,applyPromoCode,calculateSurge,calculateOrderTotal } from './pricing';
 
 describe('calculateDeliveryFee', () => {
-  // ── Cas normaux ────────────────────────────────────────────
   it('should return 2.00 for 2km and 1kg', () => {
     expect(calculateDeliveryFee(2, 1)).toBe(2.00);
   });
@@ -11,27 +10,22 @@ describe('calculateDeliveryFee', () => {
   });
 
   it('should return 3.50 for 6km and 2kg', () => {
-    // 2.00 + (3 * 0.50) = 3.50
     expect(calculateDeliveryFee(6, 2)).toBe(3.50);
   });
 
   it('should return 5.50 for 10km and 2kg', () => {
-    // 2.00 + (7 * 0.50) = 5.50
     expect(calculateDeliveryFee(10, 2)).toBe(5.50);
   });
 
-  // ── Supplément poids ───────────────────────────────────────
   it('should not add surcharge for exactly 5kg', () => {
     expect(calculateDeliveryFee(2, 5)).toBe(2.00);
   });
 
   it('should add 1.50 surcharge for weight above 5kg', () => {
-    // 2.00 + 1.50 = 3.50
     expect(calculateDeliveryFee(2, 8)).toBe(3.50);
   });
 
   it('should return 7.00 for 10km and 6kg', () => {
-    // 2.00 + (7 * 0.50) + 1.50 = 7.00
     expect(calculateDeliveryFee(10, 6)).toBe(7.00);
   });
 
@@ -39,7 +33,6 @@ describe('calculateDeliveryFee', () => {
     expect(calculateDeliveryFee(0, 1)).toBe(2.00);
   });
 
-  // ── Cas d'erreur ───────────────────────────────────────────
   it('should return null for distance above 10km', () => {
     expect(calculateDeliveryFee(15, 1)).toBeNull();
   });
@@ -91,7 +84,6 @@ const promoCodes = [
   ];
   
   describe('applyPromoCode', () => {
-	// ── Cas normaux ────────────────────────────────────────────
 	it('should apply 20% discount on 50€', () => {
 	  const result = applyPromoCode(50, 'BIENVENUE20', promoCodes);
 	  expect(result.total).toBe(40);
@@ -109,7 +101,6 @@ const promoCodes = [
 	  expect(result.total).toBe(12);
 	});
   
-	// ── Refus du code ──────────────────────────────────────────
 	it('should throw when promo code is expired', () => {
 	  expect(() => applyPromoCode(50, 'EXPIRE', promoCodes)).toThrow(
 		'Code promo expiré',
@@ -128,9 +119,7 @@ const promoCodes = [
 	  );
 	});
   
-	// ── Cas limites ────────────────────────────────────────────
 	it('should return 0 when fixed discount exceeds subtotal', () => {
-	  // 10€ de réduction sur 5€ → ne peut pas être négatif
 	  const result = applyPromoCode(5, 'BIGDISCOUNT', promoCodes);
 	  expect(result.total).toBe(0);
 	});
@@ -153,7 +142,6 @@ const promoCodes = [
 	});
   });
   describe('calculateSurge', () => {
-	// ── Chaque multiplicateur ──────────────────────────────────
 	it('should return 1.0 for tuesday at 15h (normal)', () => {
 	  expect(calculateSurge(15, 'tuesday')).toBe(1.0);
 	});
@@ -178,7 +166,6 @@ const promoCodes = [
 	  expect(calculateSurge(14, 'sunday')).toBe(1.2);
 	});
   
-	// ── Fermé ─────────────────────────────────────────────────
 	it('should return 0 before opening at 9h59', () => {
 	  expect(calculateSurge(9.59, 'monday')).toBe(0);
 	});
@@ -187,7 +174,6 @@ const promoCodes = [
 	  expect(calculateSurge(22.01, 'monday')).toBe(0);
 	});
   
-	// ── Transitions et limites ─────────────────────────────────
 	it('should return 1.0 at exactly 10h (opening)', () => {
 	  expect(calculateSurge(10, 'monday')).toBe(1.0);
 	});
@@ -209,14 +195,9 @@ const promoCodes = [
 	});
   });
 describe('calculateOrderTotal', () => {
-	// ── Scénarios complets ─────────────────────────────────────
 	it('should calculate correct total for 2 pizzas at 5km on tuesday at 15h', () => {
 	  const items = [{ name: 'Pizza', price: 12.50, quantity: 2 }];
 	  const result = calculateOrderTotal(items, 5, 2, null, 15, 'tuesday', promoCodes);
-	  // subtotal = 25€
-	  // delivery = 2.00 + (2 * 0.50) = 3.00
-	  // surge = 1.0
-	  // total = 25 + 3.00 = 28.00
 	  expect(result.subtotal).toBe(25);
 	  expect(result.deliveryFee).toBe(3.00);
 	  expect(result.surge).toBe(1.0);
@@ -229,9 +210,6 @@ describe('calculateOrderTotal', () => {
 	  const result = calculateOrderTotal(items, 5, 2, 'BIENVENUE20', 15, 'tuesday', promoCodes);
 	  // subtotal = 25€
 	  // discount = 25 * 20% = 5€
-	  // subtotal après promo = 20€
-	  // delivery = 3.00
-	  // total = 20 + 3.00 = 23.00
 	  expect(result.subtotal).toBe(25);
 	  expect(result.discount).toBe(5);
 	  expect(result.total).toBe(23.00);
@@ -240,10 +218,6 @@ describe('calculateOrderTotal', () => {
 	it('should apply surge on delivery fee on friday at 20h', () => {
 	  const items = [{ name: 'Pizza', price: 12.50, quantity: 2 }];
 	  const result = calculateOrderTotal(items, 5, 2, null, 20, 'friday', promoCodes);
-	  // delivery = 3.00
-	  // surge = 1.8
-	  // deliveryFee après surge = 3.00 * 1.8 = 5.40
-	  // total = 25 + 5.40 = 30.40
 	  expect(result.surge).toBe(1.8);
 	  expect(result.deliveryFee).toBe(5.40);
 	  expect(result.total).toBe(30.40);
@@ -265,8 +239,6 @@ describe('calculateOrderTotal', () => {
 	  expect(result.subtotal).toBe(31.00);
 	  expect(result.total).toBe(parseFloat(result.total.toFixed(2)));
 	});
-  
-	// ── Cas d'erreur ───────────────────────────────────────────
 	it('should throw for empty items array', () => {
 	  expect(() =>
 		calculateOrderTotal([], 5, 2, null, 15, 'tuesday', promoCodes),

@@ -35,7 +35,6 @@ describe('Orders API (integration)', () => {
     await app.close();
   });
 
-  // ── POST /orders/simulate ──────────────────────────────────
   describe('POST /orders/simulate', () => {
     it('should return 200 with correct price detail', () => {
       return request(app.getHttpServer())
@@ -101,7 +100,6 @@ describe('Orders API (integration)', () => {
     });
   });
 
-  // ── POST /orders ───────────────────────────────────────────
   describe('POST /orders', () => {
     it('should return 201 with order and unique ID', () => {
       return request(app.getHttpServer())
@@ -164,7 +162,6 @@ describe('Orders API (integration)', () => {
     });
   });
 
-  // ── GET /orders/:id ────────────────────────────────────────
   describe('GET /orders/:id', () => {
     it('should return 200 with complete order', async () => {
       await request(app.getHttpServer())
@@ -211,7 +208,6 @@ describe('Orders API (integration)', () => {
     });
   });
 
-  // ── POST /promo/validate ───────────────────────────────────
   describe('POST /promo/validate', () => {
     it('should return 200 with discount details for valid code', () => {
       return request(app.getHttpServer())
@@ -251,19 +247,17 @@ describe('Orders API (integration)', () => {
         .send({ subtotal: 50 })
         .expect(400);
     });
-		// Dans describe('POST /orders/simulate')
 	it('should return 400 when required fields are missing', () => {
 		return request(app.getHttpServer())
 		.post('/orders/simulate')
-		.send({ items: [] })   // distance, hour, dayOfWeek manquants
+		.send({ items: [] })   
 		.expect(400);
 	});
 	
-	// Dans describe('POST /orders')
 	it('should return 400 when required fields are missing', () => {
 		return request(app.getHttpServer())
 		.post('/orders')
-		.send({ items: [] })   // distance, hour, dayOfWeek manquants
+		.send({ items: [] })   
 		.expect(400);
 	});
   });
