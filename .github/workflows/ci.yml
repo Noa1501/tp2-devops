@@ -14,6 +14,10 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
 
+    defaults:
+      run:
+        working-directory: testing-tp
+
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -23,6 +27,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: testing-tp/package-lock.json
 
       - name: Installer les dépendances
         run: npm ci
