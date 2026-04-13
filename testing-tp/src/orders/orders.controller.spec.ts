@@ -251,5 +251,20 @@ describe('Orders API (integration)', () => {
         .send({ subtotal: 50 })
         .expect(400);
     });
+		// Dans describe('POST /orders/simulate')
+	it('should return 400 when required fields are missing', () => {
+		return request(app.getHttpServer())
+		.post('/orders/simulate')
+		.send({ items: [] })   // distance, hour, dayOfWeek manquants
+		.expect(400);
+	});
+	
+	// Dans describe('POST /orders')
+	it('should return 400 when required fields are missing', () => {
+		return request(app.getHttpServer())
+		.post('/orders')
+		.send({ items: [] })   // distance, hour, dayOfWeek manquants
+		.expect(400);
+	});
   });
 });
